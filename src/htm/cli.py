@@ -6,6 +6,7 @@ from pathlib import Path
 
 from htm import __version__
 from htm.media import MediaError, require_ffmpeg
+from htm.system import describe_host, extend_path, is_macos, libsndfile_hint, uv_hint, which
 from htm.types import Settings
 
 
@@ -50,20 +51,37 @@ def build_parser() -> argparse.ArgumentParser:
 def cmd_doctor(insecure_ssl: bool) -> int:
     ok = True
     print(f"High Transcription Model {__version__}")
+    print(f"system: {describe_host()}")
     print(f"Python {sys.version.split()[0]}  ({sys.executable})")
+    if is_macos():
+        print("uwaga: na Macu faster-whisper liczy na CPU (CTranslate2), nie na Metal/ANE")
     try:
         ff = require_ffmpeg()
         print(f"ffmpeg: {ff}")
     except MediaError as e:
         print(f"BŁĄD: {e}")
         ok = False
+    uv = which("uv")
+    print(f"uv: {uv or 'brak (można użyć pip)'}")
+    if not uv:
+        print(uv_hint())
     for pkg in ("faster_whisper", "librosa", "sklearn", "gradio"):
         try:
             __import__(pkg)
             print(f"{pkg}: OK")
         except ImportError:
-            print(f"{pkg}: BRAK — uruchom: uv pip install -e .")
+            print(f"{pkg}: BRAK — w katalogu aplikacji: uv pip install -e .")
             ok = False
+    try:
+        import soundfile  # noqa: F401
+
+        print("soundfile: OK")
+    except Exception as e:
+        print(f"soundfile: BŁĄD ({e})")
+        extra = libsndfile_hint()
+        if extra:
+            print(f"  {extra}")
+        ok = False
     cache = Path.cwd() / ".htms-cache"
     print(f"cache: {cache} ({'istnieje' if cache.exists() else 'zostanie utworzony'})")
     if insecure_ssl:
@@ -114,6 +132,7 @@ def cmd_ui(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    extend_path()
     parser = build_parser()
     args = parser.parse_args(argv)
     try:

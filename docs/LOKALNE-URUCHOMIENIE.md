@@ -1,6 +1,7 @@
 # Uruchomienie lokalne — High Transcription Model
 
-Instrukcja na Ubuntu / Debian. Mac i Windows WSL2 działają analogicznie, byle był `ffmpeg` i Python 3.11+.
+- **macOS** (Homebrew, Finder, Apple Silicon): [MACOS.md](MACOS.md)
+- Poniżej: **Ubuntu / Debian**. WSL2 jak Linux.
 
 ## 1. Zależności systemowe
 
@@ -11,6 +12,8 @@ ffmpeg -version | head -1
 ```
 
 `ffmpeg` jest **wymagany** — bez niego aplikacja nie wyciągnie dźwięku z MP4.
+
+Na macOS zamiast `apt`: `brew install ffmpeg uv` — szczegóły w [MACOS.md](MACOS.md).
 
 ## 2. Instalator pakietów Python: uv (zalecane)
 
@@ -108,7 +111,7 @@ Po transkrypcji zajrzyj do nagłówka Markdown (próbki wypowiedzi przy każdym 
 | `large-v3` | maksymalna jakość ASR, wolniej |
 | `medium` / `small` | szybki podgląd, gorsza polszczyzna |
 
-Na CPU nagranie ~28 min przy `large-v3-turbo` trwa zwykle **ok. 20–40 min**. GPU skraca to kilkukrotnie (`--device cuda`).
+Na CPU nagranie ~28 min przy `large-v3-turbo` trwa zwykle **ok. 20–40 min**. GPU NVIDIA (Linux) skraca to kilkukrotnie (`--device cuda`). Na macOS zostaje CPU — M-series i tak bywa szybszy niż typowy laptop x86.
 
 ## 6. Hugging Face / TLS
 

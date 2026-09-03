@@ -20,14 +20,16 @@ Imiona nie są zgadywane z treści spotkania. Podajesz je sam (`--names`) w kole
 
 ## Wymagania
 
-- Linux (testowane na Ubuntu)
+- **Linux** albo **macOS** 13+ (Apple Silicon i Intel)
 - Python **3.11+** (zalecane 3.12)
 - [ffmpeg](https://ffmpeg.org/)
 - [uv](https://docs.astral.sh/uv/) (zalecane) albo zwykły `pip`
 - ~2 GB na model `large-v3-turbo` przy pierwszym uruchomieniu
-- CPU wystarczy; GPU NVIDIA przyspiesza transkrypcję
+- CPU wystarczy. GPU NVIDIA (`--device cuda`) tylko poza macOS — na Macu CTranslate2 liczy na CPU, nie na Metal.
 
 ## Szybki start (interfejs w przeglądarce)
+
+**Linux**
 
 ```bash
 cd "High Transcription Model"
@@ -35,9 +37,18 @@ chmod +x run.sh
 ./run.sh
 ```
 
+**macOS** — [docs/MACOS.md](docs/MACOS.md)
+
+```bash
+brew install ffmpeg uv
+chmod +x run.sh run.command
+./run.sh
+# albo dwuklik run.command w Finderze
+```
+
 Otworzy się http://127.0.0.1:7860 — wrzucasz plik, ustawiasz język i (opcjonalnie) liczbę mówców oraz imiona, klikasz **Transkrybuj**.
 
-Krok po kroku, w tym bez `uv`: [docs/LOKALNE-URUCHOMIENIE.md](docs/LOKALNE-URUCHOMIENIE.md).
+Krok po kroku: [docs/LOKALNE-URUCHOMIENIE.md](docs/LOKALNE-URUCHOMIENIE.md) (Linux) · [docs/MACOS.md](docs/MACOS.md).
 
 ## Linia poleceń
 
@@ -71,7 +82,7 @@ Przydatne flagi:
 - `--speakers 3` — gdy wiesz, ile osób mówi
 - `--insecure-ssl` — gdy korporacyjne TLS blokuje Hugging Face
 - `--no-previous-text` — czasem lepiej przy częstych zmianach mówcy
-- `--device cuda` — gdy jest GPU
+- `--device cuda` — GPU NVIDIA (nie dotyczy macOS)
 
 ## Jak rozpoznawani są mówcy
 

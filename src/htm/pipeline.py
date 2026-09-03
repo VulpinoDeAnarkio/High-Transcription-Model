@@ -7,6 +7,7 @@ from htm.asr import load_model, transcribe_audio
 from htm.diarize import assign_speakers
 from htm.export import write_outputs
 from htm.media import extract_wav
+from htm.system import apply_macos_runtime_env, extend_path
 from htm.types import ProgressFn, Settings, Transcript
 
 
@@ -20,6 +21,9 @@ def transcribe(
     source = Path(source).expanduser().resolve()
     if not source.exists():
         raise FileNotFoundError(source)
+
+    extend_path()
+    apply_macos_runtime_env()
 
     def report(pct: float, msg: str) -> None:
         if progress:

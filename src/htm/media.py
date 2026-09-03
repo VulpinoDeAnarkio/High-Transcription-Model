@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import shutil
 import subprocess
 from pathlib import Path
 
-AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".flac", ".ogg", ".aac", ".wma"}
-VIDEO_SUFFIXES = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".m4v"}
+from htm.system import extend_path, ffmpeg_hint, which
+
+AUDIO_SUFFIXES = {".wav", ".mp3", ".m4a", ".flac", ".ogg", ".aac", ".wma", ".aiff", ".aif"}
+VIDEO_SUFFIXES = {".mp4", ".mkv", ".mov", ".webm", ".avi", ".m4v", ".qt"}
 
 
 class MediaError(RuntimeError):
@@ -13,12 +14,10 @@ class MediaError(RuntimeError):
 
 
 def require_ffmpeg() -> str:
-    path = shutil.which("ffmpeg")
+    extend_path()
+    path = which("ffmpeg")
     if not path:
-        raise MediaError(
-            "Nie znaleziono ffmpeg. Zainstaluj: sudo apt install ffmpeg  (Debian/Ubuntu) "
-            "albo https://ffmpeg.org/download.html"
-        )
+        raise MediaError(ffmpeg_hint())
     return path
 
 
@@ -28,6 +27,8 @@ def extract_wav(source: Path, dest: Path, sr: int = 16_000) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
     cmd = [
         ffmpeg,
+        "-hide_banner",
+        "-nostdin",
         "-y",
         "-i",
         str(source),

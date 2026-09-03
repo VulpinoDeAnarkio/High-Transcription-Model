@@ -30,6 +30,8 @@ Markdown / TXT / SRT / JSON
 
 Liczba mówców: `--speakers N` albo silhouette (2–6) w trybie auto.
 
+Na macOS CTranslate2 **nie używa Metal** — transkrypcja idzie na CPU (M-series i tak jest szybki). `int8` ma fallback na `int8_float32` / `float32`.
+
 ## Czego tu nie ma (świadomie)
 
 - **pyannote.audio** — wymaga tokenu Hugging Face, PyTorch i zwykle GPU; na CPU bywa wolniejszy niż ten pipeline, a próg wejścia jest wyższy.

@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from htm.ssl_util import apply_insecure_ssl, ensure_ssl
+from htm.system import apply_macos_runtime_env, is_macos
 from htm.types import Segment, Settings, Word
 
 
@@ -15,15 +16,30 @@ def _resolve_device(settings: Settings) -> tuple[str, str]:
     device = settings.device
     compute = settings.compute_type
     if device == "auto":
-        try:
-            import ctranslate2
+        device = "cpu"
+        if not is_macos():
+            try:
+                import ctranslate2
 
-            device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
-        except Exception:
-            device = "cpu"
+                if ctranslate2.get_cuda_device_count() > 0:
+                    device = "cuda"
+            except Exception:
+                device = "cpu"
     if compute == "auto":
         compute = "float16" if device == "cuda" else "int8"
     return device, compute
+
+
+def _compute_fallbacks(preferred: str, device: str) -> list[str]:
+    if device == "cuda":
+        return [preferred, "float16", "float32"]
+    # Apple Silicon / CPU: int8 sometimes rejects a model; fall back.
+    ordered = [preferred, "int8", "int8_float32", "int8_float16", "float32"]
+    seen: list[str] = []
+    for item in ordered:
+        if item not in seen:
+            seen.append(item)
+    return seen
 
 
 def _cache_dir(settings: Settings) -> Path:
@@ -38,35 +54,57 @@ def _cache_dir(settings: Settings) -> Path:
 def load_model(settings: Settings):
     from faster_whisper import WhisperModel
 
+    apply_macos_runtime_env()
     ensure_ssl(settings.insecure_ssl)
     cache = _cache_dir(settings)
     cache.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("HF_HOME", str(cache))
     os.environ.setdefault("HUGGINGFACE_HUB_CACHE", str(cache))
     device, compute = _resolve_device(settings)
-    try:
-        return WhisperModel(
-            settings.model,
-            device=device,
-            compute_type=compute,
-            download_root=str(cache),
-        )
-    except Exception as first:
-        if settings.insecure_ssl is False:
-            raise AsrError(f"Nie udało się wczytać modelu {settings.model}: {first}") from first
-        apply_insecure_ssl()
+    cpu_threads = os.cpu_count() or 4
+    last_error: Exception | None = None
+    ssl_retried = False
+
+    for compute_type in _compute_fallbacks(compute, device):
         try:
             return WhisperModel(
                 settings.model,
                 device=device,
-                compute_type=compute,
+                compute_type=compute_type,
                 download_root=str(cache),
+                cpu_threads=cpu_threads,
+                num_workers=1,
             )
-        except Exception as second:
-            raise AsrError(
-                f"Nie udało się wczytać modelu {settings.model}. "
-                f"Sprawdź sieć / TLS (HTM_INSECURE_SSL=1). Szczegóły: {second}"
-            ) from second
+        except Exception as err:
+            last_error = err
+            msg = str(err).lower()
+            tls = "certificate" in msg or "ssl" in msg or "localentrynotfound" in msg
+            if tls and not ssl_retried and settings.insecure_ssl is not False:
+                apply_insecure_ssl()
+                ssl_retried = True
+                try:
+                    return WhisperModel(
+                        settings.model,
+                        device=device,
+                        compute_type=compute_type,
+                        download_root=str(cache),
+                        cpu_threads=cpu_threads,
+                        num_workers=1,
+                    )
+                except Exception as err2:
+                    last_error = err2
+                    continue
+            if "compute type" in msg or "compute_type" in msg or "not supported" in msg:
+                continue
+            if tls:
+                continue
+            break
+
+    raise AsrError(
+        f"Nie udało się wczytać modelu {settings.model} ({device}/{compute}). "
+        f"Na macOS CTranslate2 działa na CPU (nie Metal). "
+        f"Szczegóły: {last_error}"
+    ) from last_error
 
 
 def transcribe_audio(audio: Path, settings: Settings, model=None) -> tuple[list[Segment], str | None, float | None]:
