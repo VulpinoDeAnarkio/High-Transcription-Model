@@ -105,17 +105,20 @@ Po transkrypcji zajrzyj do nagłówka Markdown (próbki wypowiedzi przy każdym 
 
 ### Dobór modelu
 
+W interfejsie są **dwa** warianty (przełącznik):
+
 | model | kiedy |
 |---|---|
-| `large-v3-turbo` (domyślny) | najlepszy kompromis jakość/czas na CPU |
-| `large-v3` | maksymalna jakość ASR, wolniej |
-| `medium` / `small` | szybki podgląd, gorsza polszczyzna |
+| `large-v3-turbo` (domyślny, **Szybszy**) | rozmowy, spotkania; ten sam co przy transkrypcji HR |
+| `large-v3` (**Dokładniejszy**) | czytanie, odzyskiwanie tekstu; wolniejszy, zwykle mniej pomyłek |
 
-Na CPU nagranie ~28 min przy `large-v3-turbo` trwa zwykle **ok. 20–40 min**. GPU NVIDIA (Linux) skraca to kilkukrotnie (`--device cuda`). Na macOS zostaje CPU — M-series i tak bywa szybszy niż typowy laptop x86.
+Z linii poleceń: `--model large-v3-turbo` albo `--model large-v3` (aliasy: `turbo`, `large`). Dodatkowo `medium` / `small` / `base` tylko do podglądu.
+
+Na CPU nagranie ~28 min przy `large-v3-turbo` trwa zwykle **ok. 20–40 min**. `large-v3` bywa 2–3× wolniejszy. GPU NVIDIA (Linux) skraca to kilkukrotnie (`--device cuda`). Na macOS zostaje CPU — M-series i tak bywa szybszy niż typowy laptop x86.
 
 ## 6. Hugging Face / TLS
 
-Pierwsze uruchomienie pobiera model (~1,6 GB). Typowe błędy:
+Pierwsze uruchomienie pobiera wybrany model (`large-v3-turbo` ~1,6 GB, `large-v3` ~3 GB). Typowe błędy:
 
 ```
 CERTIFICATE_VERIFY_FAILED

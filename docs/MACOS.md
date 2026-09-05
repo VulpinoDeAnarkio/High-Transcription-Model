@@ -44,7 +44,7 @@ chmod +x run.sh run.command
 
 Albo **dwuklik** `run.command` — otworzy Terminal i UI pod http://127.0.0.1:7860
 
-Pierwsze uruchomienie tworzy `.venv`, dociąga zależności i model Whisper (~1,6 GB).
+Pierwsze uruchomienie tworzy `.venv`, dociąga zależności i wybrany model Whisper (`large-v3-turbo` ~1,6 GB, `large-v3` ~3 GB).
 
 ## 4. Diagnostyka
 
@@ -102,5 +102,7 @@ albo checkbox w UI.
 | M1 / M2 | zwykle kilkanaście–30 min |
 | Intel Mac | bliżej 30–50 min |
 | NVIDIA GPU (tylko Linux/Windows) | kilka–kilkanaście min |
+
+`large-v3` na tym samym sprzęcie bywa wyraźnie wolniejszy (orientacyjnie 2–3×).
 
 Nie instaluj CUDA na Macu. Nie oczekuj przyspieszenia z `mps` / PyTorch Metal — ten stack idzie przez CTranslate2 na CPU.

@@ -8,6 +8,7 @@ ffmpeg  ──►  WAV 16 kHz mono
     │
     ▼
 faster-whisper (VAD + beam search + word timestamps)
+    wybór: large-v3-turbo (szybszy) albo large-v3 (dokładniejszy)
     │
     ▼
 YIN F0  +  MFCC/widmo  ──►  klastry mówców
@@ -31,6 +32,8 @@ Markdown / TXT / SRT / JSON
 Liczba mówców: `--speakers N` albo silhouette (2–6) w trybie auto.
 
 Na macOS CTranslate2 **nie używa Metal** — transkrypcja idzie na CPU (M-series i tak jest szybki). `int8` ma fallback na `int8_float32` / `float32`.
+
+Modele: **`large-v3-turbo`** (domyślny) i **`large-v3`** to dwa osobne pliki w cache; zmiana w UI/CLI ładuje drugi wariant, nie nadpisuje pierwszego.
 
 ## Czego tu nie ma (świadomie)
 

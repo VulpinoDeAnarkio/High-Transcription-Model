@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from htm.models import cache_dir, spec_for
 from htm.ssl_util import apply_insecure_ssl, ensure_ssl
 from htm.system import apply_macos_runtime_env, is_macos
 from htm.types import Segment, Settings, Word
@@ -43,12 +44,7 @@ def _compute_fallbacks(preferred: str, device: str) -> list[str]:
 
 
 def _cache_dir(settings: Settings) -> Path:
-    if settings.cache_dir:
-        return settings.cache_dir
-    env = os.environ.get("HTM_CACHE") or os.environ.get("HF_HOME")
-    if env:
-        return Path(env)
-    return Path.cwd() / ".htms-cache"
+    return cache_dir(settings.cache_dir)
 
 
 def load_model(settings: Settings):
@@ -56,6 +52,7 @@ def load_model(settings: Settings):
 
     apply_macos_runtime_env()
     ensure_ssl(settings.insecure_ssl)
+    spec = spec_for(settings.model)
     cache = _cache_dir(settings)
     cache.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("HF_HOME", str(cache))
@@ -68,7 +65,7 @@ def load_model(settings: Settings):
     for compute_type in _compute_fallbacks(compute, device):
         try:
             return WhisperModel(
-                settings.model,
+                spec.id,
                 device=device,
                 compute_type=compute_type,
                 download_root=str(cache),
@@ -84,7 +81,7 @@ def load_model(settings: Settings):
                 ssl_retried = True
                 try:
                     return WhisperModel(
-                        settings.model,
+                        spec.id,
                         device=device,
                         compute_type=compute_type,
                         download_root=str(cache),
@@ -101,7 +98,7 @@ def load_model(settings: Settings):
             break
 
     raise AsrError(
-        f"Nie udało się wczytać modelu {settings.model} ({device}/{compute}). "
+        f"Nie udało się wczytać modelu {spec.id} ({device}/{compute}). "
         f"Na macOS CTranslate2 działa na CPU (nie Metal). "
         f"Szczegóły: {last_error}"
     ) from last_error

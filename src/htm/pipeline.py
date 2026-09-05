@@ -7,6 +7,7 @@ from htm.asr import load_model, transcribe_audio
 from htm.diarize import assign_speakers
 from htm.export import write_outputs
 from htm.media import extract_wav
+from htm.models import spec_for
 from htm.system import apply_macos_runtime_env, extend_path
 from htm.types import ProgressFn, Settings, Transcript
 
@@ -36,7 +37,8 @@ def transcribe(
     report(0.04, "Wyodrębnianie ścieżki audio…")
     extract_wav(source, audio)
 
-    report(0.12, f"Ładowanie modelu {settings.model}…")
+    spec = spec_for(settings.model)
+    report(0.12, f"Ładowanie modelu {spec.id} ({spec.title.lower()})…")
     model = load_model(settings)
 
     report(0.18, "Transkrypcja (to może potrwać)…")

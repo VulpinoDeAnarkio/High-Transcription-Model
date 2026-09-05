@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from htm.diarize import format_timestamp
+from htm.models import spec_for
 from htm.types import Transcript
 
 
@@ -13,7 +14,7 @@ def to_markdown(result: Transcript) -> str:
         f"# Transkrypcja — {src}",
         "",
         f"Plik: `{src}`",
-        f"Model: `{result.model}`",
+        f"Model: `{result.model}` ({spec_for(result.model).title.lower()})",
     ]
     if result.language:
         p = f" ({result.language_probability:.0%})" if result.language_probability else ""

@@ -7,7 +7,9 @@ Powstała z pipeline’u użytego do transkrypcji rozmowy HR (faster-whisper `la
 ## Co robi
 
 1. Wyciąga ścieżkę dźwiękową (`ffmpeg` → WAV 16 kHz, mono).
-2. Transkrybuje **faster-whisper** (domyślnie `large-v3-turbo`, int8 na CPU, float16 na GPU).
+2. Transkrybuje **faster-whisper**. Wybierasz model:
+   - **`large-v3-turbo`** (domyślny) — szybszy, dobry do rozmów i spotkań;
+   - **`large-v3`** — pełny, dokładniejszy, wolniejszy (czytanie, odzyskiwanie tekstu).
 3. Dzieli wypowiedzi na mówców:
    - śledzenie F0 (YIN) — pewne rozróżnienie mężczyzna / kobieta,
    - wektory MFCC + cechy widmowe,
@@ -24,7 +26,7 @@ Imiona nie są zgadywane z treści spotkania. Podajesz je sam (`--names`) w kole
 - Python **3.11+** (zalecane 3.12)
 - [ffmpeg](https://ffmpeg.org/)
 - [uv](https://docs.astral.sh/uv/) (zalecane) albo zwykły `pip`
-- ~2 GB na model `large-v3-turbo` przy pierwszym uruchomieniu
+- ~2 GB na `large-v3-turbo` albo ~3 GB na `large-v3` przy pierwszym uruchomieniu danego modelu
 - CPU wystarczy. GPU NVIDIA (`--device cuda`) tylko poza macOS — na Macu CTranslate2 liczy na CPU, nie na Metal.
 
 ## Szybki start (interfejs w przeglądarce)
@@ -46,7 +48,7 @@ chmod +x run.sh run.command
 # albo dwuklik run.command w Finderze
 ```
 
-Otworzy się http://127.0.0.1:7860 — wrzucasz plik, ustawiasz język i (opcjonalnie) liczbę mówców oraz imiona, klikasz **Transkrybuj**.
+Otworzy się http://127.0.0.1:7860 — wrzucasz plik, ustawiasz język, **wybierasz model** (szybszy turbo albo dokładniejszy large-v3) i opcjonalnie liczbę mówców oraz imiona, klikasz **Transkrybuj**.
 
 Krok po kroku: [docs/LOKALNE-URUCHOMIENIE.md](docs/LOKALNE-URUCHOMIENIE.md) (Linux) · [docs/MACOS.md](docs/MACOS.md).
 
@@ -58,12 +60,15 @@ source .venv/bin/activate
 # diagnostyka
 htm doctor
 
-# transkrypcja
+# transkrypcja (domyślnie large-v3-turbo)
 htm transcribe nagranie.mp4 \
   --language pl \
   --speakers 3 \
   --names "Astryda Lisienko,Paweł Bernach,Marcelina Dusza" \
   --out ./output
+
+# dokładniejszy, wolniejszy model
+htm transcribe nagranie.mp3 --language pl --model large-v3 --out ./output
 ```
 
 Wyniki:
@@ -77,7 +82,8 @@ Wyniki:
 
 Przydatne flagi:
 
-- `--model large-v3` — wyższa jakość, wolniej
+- `--model large-v3` — pełny model, wyższa jakość, wolniej (alias: `--model large`)
+- `--model large-v3-turbo` — szybszy wariant (domyślny; alias: `--model turbo`)
 - `--model small` — szybki podgląd
 - `--speakers 3` — gdy wiesz, ile osób mówi
 - `--insecure-ssl` — gdy korporacyjne TLS blokuje Hugging Face

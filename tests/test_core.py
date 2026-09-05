@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from htm.diarize import format_timestamp, merge_adjacent
-from htm.export import to_srt, to_txt
+from htm.export import to_markdown, to_srt, to_txt
 from htm.polish import first_person_gender
 from htm.types import Segment, SpeakerInfo, Transcript
 
@@ -56,3 +56,6 @@ def test_txt_and_srt() -> None:
     srt = to_srt(result)
     assert "00:00:01,000 --> 00:00:02,500" in srt
     assert "Jan: Dzień dobry." in srt
+    md = to_markdown(result)
+    assert "large-v3-turbo" in md
+    assert "szybszy" in md

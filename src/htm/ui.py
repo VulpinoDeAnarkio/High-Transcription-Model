@@ -6,16 +6,10 @@ import gradio as gr
 
 from htm import __version__
 from htm.export import to_markdown
+from htm.models import DEFAULT_MODEL, radio_choices, spec_for
 from htm.pipeline import transcribe
 from htm.types import Settings
 
-MODELS = [
-    "large-v3-turbo",
-    "large-v3",
-    "medium",
-    "small",
-    "base",
-]
 LANGUAGES = ["auto", "pl", "en", "de", "uk", "cs", "sk", "fr", "es"]
 
 
@@ -47,10 +41,11 @@ def _run(
         progress(pct, desc=msg)
 
     result, paths = transcribe(path, out_dir=out, settings=settings, progress=on_progress)
+    spec = spec_for(result.model)
     md = to_markdown(result)
     summary = (
         f"**{len(result.speakers)} mówców** · język: `{result.language}` · "
-        f"{len(result.segments)} kwestii\n\n"
+        f"model: **{spec.id}** ({spec.title.lower()}) · {len(result.segments)} kwestii\n\n"
         + "\n".join(
             f"- **{s.label}**"
             + (f" (F0 ≈ {s.median_f0:.0f} Hz)" if s.median_f0 else "")
@@ -80,7 +75,16 @@ def build_ui() -> gr.Blocks:
                     file_types=["audio", "video"],
                 )
                 language = gr.Dropdown(LANGUAGES, value="pl", label="Język")
-                model = gr.Dropdown(MODELS, value="large-v3-turbo", label="Model Whisper")
+                model = gr.Radio(
+                    choices=radio_choices(),
+                    value=DEFAULT_MODEL,
+                    label="Model",
+                    info=(
+                        "Szybszy (turbo) — rozmowy i spotkania. "
+                        "Dokładniejszy (large-v3) — czytanie i odzyskiwanie tekstu; "
+                        "pierwsze użycie dociąga osobny plik (~3 GB)."
+                    ),
+                )
                 n_speakers = gr.Slider(
                     0,
                     8,
@@ -113,8 +117,10 @@ def build_ui() -> gr.Blocks:
             outputs=[summary, transcript, md_file, txt_file, srt_file, json_file],
         )
         gr.Markdown(
-            "Modele pobierane są raz do katalogu `.htms-cache`. "
-            "Na CPU nagranie 30-minutowe trwa zwykle kilkanaście–kilkadziesiąt minut. "
+            "Dwa modele: **large-v3-turbo** (domyślny, szybszy) i **large-v3** (pełny, dokładniejszy). "
+            "Pobierane są raz do katalogu `.htms-cache`. "
+            "Na CPU nagranie 30-minutowe trwa zwykle kilkanaście–kilkadziesiąt minut; "
+            "`large-v3` bywa wyraźnie wolniejszy. "
             "Krótkie wtrącenia („mhm”, „tak”) mogą być przypisane sąsiedniemu mówcy."
         )
     return demo

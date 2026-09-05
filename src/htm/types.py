@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
+from htm.models import DEFAULT_MODEL, normalize_model
+
 ProgressFn = Callable[[float, str], None]
 
 
@@ -51,7 +53,7 @@ class Transcript:
 
 @dataclass
 class Settings:
-    model: str = "large-v3-turbo"
+    model: str = DEFAULT_MODEL
     device: str = "auto"
     compute_type: str = "auto"
     language: str | None = None
@@ -65,3 +67,8 @@ class Settings:
     cache_dir: Path | None = None
     keep_audio: bool = False
     word_timestamps: bool = True
+
+    def __post_init__(self) -> None:
+        self.model = normalize_model(self.model)
+        if self.cache_dir is not None:
+            self.cache_dir = Path(self.cache_dir)

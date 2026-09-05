@@ -6,6 +6,7 @@ from pathlib import Path
 
 from htm import __version__
 from htm.media import MediaError, require_ffmpeg
+from htm.models import DEFAULT_MODEL, cli_help, describe_cache, normalize_model
 from htm.system import describe_host, extend_path, is_macos, libsndfile_hint, uv_hint, which
 from htm.types import Settings
 
@@ -14,6 +15,13 @@ def _parse_names(raw: str | None) -> list[str]:
     if not raw:
         return []
     return [part.strip() for part in raw.replace(";", ",").split(",") if part.strip()]
+
+
+def _model_arg(raw: str) -> str:
+    try:
+        return normalize_model(raw)
+    except ValueError as e:
+        raise argparse.ArgumentTypeError(str(e)) from e
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -33,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
     tr.add_argument("source", type=Path, help="Plik .mp4 / .wav / .mp3 / …")
     tr.add_argument("-o", "--out", type=Path, default=Path("output"), help="Katalog wyników")
     tr.add_argument("-l", "--language", default="auto", help="Kod języka (pl, en) albo auto")
-    tr.add_argument("-m", "--model", default="large-v3-turbo", help="Model faster-whisper")
+    tr.add_argument("-m", "--model", type=_model_arg, default=DEFAULT_MODEL, help=cli_help())
     tr.add_argument("-s", "--speakers", type=int, default=None, help="Liczba mówców (domyślnie: auto)")
     tr.add_argument("-n", "--names", default="", help='Imiona, przecinkami, w kolejności pierwszego zabrania głosu')
     tr.add_argument("--device", default="auto", help="cpu / cuda / auto")
@@ -82,8 +90,8 @@ def cmd_doctor(insecure_ssl: bool) -> int:
         if extra:
             print(f"  {extra}")
         ok = False
-    cache = Path.cwd() / ".htms-cache"
-    print(f"cache: {cache} ({'istnieje' if cache.exists() else 'zostanie utworzony'})")
+    for line in describe_cache():
+        print(line)
     if insecure_ssl:
         from htm.ssl_util import apply_insecure_ssl
 
@@ -114,6 +122,7 @@ def cmd_transcribe(args: argparse.Namespace) -> int:
 
     result, paths = transcribe(args.source, out_dir=args.out, settings=settings, progress=progress)
     print()
+    print(f"Model: {result.model}")
     print(f"Język: {result.language}")
     print(f"Mówcy ({len(result.speakers)}):")
     for sp in result.speakers:
