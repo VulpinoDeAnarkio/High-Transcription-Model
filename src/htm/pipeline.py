@@ -17,6 +17,7 @@ def transcribe(
     out_dir: str | Path | None = None,
     settings: Settings | None = None,
     progress: ProgressFn | None = None,
+    model=None,
 ) -> tuple[Transcript, dict[str, Path]]:
     settings = settings or Settings()
     source = Path(source).expanduser().resolve()
@@ -32,17 +33,31 @@ def transcribe(
 
     work = Path(out_dir).expanduser().resolve() if out_dir else Path(tempfile.mkdtemp(prefix="htm-"))
     work.mkdir(parents=True, exist_ok=True)
-    audio = work / (source.stem + ".16k.wav")
+    if settings.keep_audio:
+        audio = work / (source.stem + ".16k.wav")
+    else:
+        tmp = tempfile.NamedTemporaryFile(prefix="htm-", suffix=".16k.wav", delete=False)
+        tmp.close()
+        audio = Path(tmp.name)
 
     report(0.04, "Wyodrębnianie ścieżki audio…")
     extract_wav(source, audio)
 
     spec = spec_for(settings.model)
-    report(0.12, f"Ładowanie modelu {spec.id} ({spec.title.lower()})…")
-    model = load_model(settings)
+    if model is None:
+        report(0.12, f"Ładowanie modelu {spec.id} ({spec.title.lower()})…")
+        model = load_model(settings)
+    else:
+        report(0.12, f"Model {spec.id} już w pamięci…")
 
     report(0.18, "Transkrypcja (to może potrwać)…")
-    segments, language, lang_p = transcribe_audio(audio, settings, model=model)
+
+    def asr_progress(frac: float, msg: str) -> None:
+        report(0.18 + 0.58 * max(0.0, min(float(frac), 1.0)), msg)
+
+    segments, language, lang_p = transcribe_audio(
+        audio, settings, model=model, progress=asr_progress
+    )
 
     report(0.78, "Identyfikacja mówców…")
     merged, speakers, notes = assign_speakers(

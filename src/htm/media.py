@@ -50,6 +50,21 @@ def extract_wav(source: Path, dest: Path, sr: int = 16_000) -> Path:
     return dest
 
 
+def wav_duration(path: Path) -> float | None:
+    """Długość WAV w sekundach (do paska transkrypcji)."""
+    import wave
+
+    try:
+        with wave.open(str(path), "rb") as fh:
+            frames = fh.getnframes()
+            rate = fh.getframerate()
+        if rate <= 0 or frames <= 0:
+            return None
+        return frames / float(rate)
+    except Exception:
+        return None
+
+
 def is_media(path: Path) -> bool:
     suf = path.suffix.lower()
     return suf in AUDIO_SUFFIXES or suf in VIDEO_SUFFIXES

@@ -69,6 +69,8 @@ htm ui
 
 Domyślnie: [http://127.0.0.1:7860](http://127.0.0.1:7860) (tylko lokalny host).
 
+W UI: wrzuć kilka plików **albo** wklej ścieżkę folderu (Finder / Nautilus: skopiuj ścieżkę). Ustawienia modelu i języka dotyczą całej kolejki. Wynik: wspólny katalog `output/` albo pliki `*_transkrypcja.md` obok źródła.
+
 Opcje:
 
 ```bash

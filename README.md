@@ -16,7 +16,7 @@ Powstała z pipeline’u użytego do transkrypcji rozmowy HR (faster-whisper `la
    - klasteryzacja hierarchiczna,
    - wygładzanie krótkich wtrąceń,
    - opcjonalnie polskie formy 1. os. (*powiedziałem* / *chciałabym*) jako słaby prior płci.
-4. Zapisuje **Markdown, TXT, SRT i JSON**.
+4. Zapisuje **Markdown, TXT, SRT i JSON**. W interfejsie możesz złożyć **kolejkę** wielu nagrań (wrzucenie albo folder na dysku) i odpalić je jedno po drugim.
 
 Imiona nie są zgadywane z treści spotkania. Podajesz je sam (`--names`) w kolejności **pierwszego zabrania głosu**, albo zostawiasz etykiety `Mówca M1` / `Mówca K1`.
 
@@ -48,7 +48,7 @@ chmod +x run.sh run.command
 # albo dwuklik run.command w Finderze
 ```
 
-Otworzy się http://127.0.0.1:7860 — wrzucasz plik, ustawiasz język, **wybierasz model** (szybszy turbo albo dokładniejszy large-v3) i opcjonalnie liczbę mówców oraz imiona, klikasz **Transkrybuj**.
+Otworzy się http://127.0.0.1:7860. Ten sam widok na Linuxie i macOS. Możesz wrzucić **wiele plików** albo wkleić **ścieżkę folderu** (lepsze przy dużych MP3/MP4 — nic nie kopiuje się do przeglądarki). Język, model i imiona ustawiasz raz dla całej kolejki, potem **Uruchom kolejkę**. Pliki idą po kolei; **Zatrzymaj po bieżącym** nie ubija Whisper w połowie nagrania.
 
 Krok po kroku: [docs/LOKALNE-URUCHOMIENIE.md](docs/LOKALNE-URUCHOMIENIE.md) (Linux) · [docs/MACOS.md](docs/MACOS.md).
 
