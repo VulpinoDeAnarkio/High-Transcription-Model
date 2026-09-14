@@ -137,7 +137,6 @@ def transcribe_audio(
     from htm.diarize import format_timestamp
     from htm.media import wav_duration
 
-    duration = wav_duration(audio)
     segments_iter, info = model.transcribe(
         str(audio),
         language=language,
@@ -147,6 +146,14 @@ def transcribe_audio(
         beam_size=settings.beam_size,
         condition_on_previous_text=settings.condition_on_previous_text,
     )
+    duration = wav_duration(audio)
+    if not duration:
+        try:
+            duration = float(getattr(info, "duration", 0) or 0) or None
+        except (TypeError, ValueError):
+            duration = None
+    if progress:
+        progress(0.0, "Transkrypcja…")
     rows: list[Segment] = []
     last_report = -1.0
     for seg in segments_iter:

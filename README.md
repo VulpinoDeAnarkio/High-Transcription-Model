@@ -48,7 +48,7 @@ chmod +x run.sh run.command
 # albo dwuklik run.command w Finderze
 ```
 
-Otworzy się http://127.0.0.1:7860. Ten sam widok na Linuxie i macOS. Możesz wrzucić **wiele plików** albo wkleić **ścieżkę folderu** (lepsze przy dużych MP3/MP4 — nic nie kopiuje się do przeglądarki). Język, model i imiona ustawiasz raz dla całej kolejki, potem **Uruchom kolejkę**. Pliki idą po kolei; **Zatrzymaj po bieżącym** nie ubija Whisper w połowie nagrania.
+Otworzy się http://127.0.0.1:7860. Ten sam widok na Linuxie i macOS. Możesz wrzucić **wiele plików** albo wkleić **ścieżkę folderu** (lepsze przy dużych MP3/MP4 — nic nie kopiuje się do przeglądarki). Język, model i imiona ustawiasz raz dla całej kolejki, potem **Uruchom kolejkę**. Widać pasek postępu bieżącego pliku (czas transkrypcji); przy więcej niż jednym nagraniu dochodzi pasek całej kolejki. Pliki idą po kolei; **Zatrzymaj po bieżącym** nie ubija Whisper w połowie nagrania.
 
 Krok po kroku: [docs/LOKALNE-URUCHOMIENIE.md](docs/LOKALNE-URUCHOMIENIE.md) (Linux) · [docs/MACOS.md](docs/MACOS.md).
 

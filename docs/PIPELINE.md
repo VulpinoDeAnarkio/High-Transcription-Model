@@ -18,7 +18,7 @@ wygładzenie krótkich wtrąceń + scalanie sąsiednich kwestii
     │
     ▼
 Markdown / TXT / SRT / JSON
-W UI: kolejka wielu plików (wrzucenie albo folder), sekwencyjnie, ten sam model w RAM.
+W UI: kolejka wielu plików (wrzucenie albo folder), sekwencyjnie, ten sam model w RAM. Pasek pliku idzie z czasem ASR (`koniec segmentu / długość WAV`); pasek kolejki = ukończone pliki + ułamek bieżącego.
 ```
 
 ## Diarizacja

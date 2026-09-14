@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "high-transcription-model"
-version = "1.2.0"
+version = "1.2.1"
 description = "Lokalna transkrypcja nagrań audio/wideo z identyfikacją mówców"
 readme = "README.md"
 requires-python = ">=3.11"

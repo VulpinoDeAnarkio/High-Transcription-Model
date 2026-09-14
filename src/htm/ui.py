@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import threading
-import time
 from datetime import datetime
 from pathlib import Path
 
@@ -277,13 +276,15 @@ def run_queue(
     done_i = 0
 
     def emit(status: str, file_frac: float, file_sub: str, job_name: str = ""):
-        q_pct = queue_percent(max(done_i - 1, 0), file_frac, total) if done_i else queue_percent(0, file_frac, total)
-        q_sub = f"{max(done_i - 1, 0)} / {total} plików" if show_queue else ""
-        if done_i:
-            q_sub = f"plik {done_i} / {total}" if show_queue else ""
+        finished = max(done_i - 1, 0)
+        q_pct = queue_percent(finished, file_frac, total)
+        if show_queue:
+            q_sub = f"plik {done_i} / {total}" if done_i else f"0 / {total} plików"
+        else:
+            q_sub = ""
         try:
             progress(
-                (max(done_i - 1, 0) + file_frac) / total if total else file_frac,
+                (finished + file_frac) / total if total else file_frac,
                 desc=file_sub or status,
             )
         except Exception:
@@ -444,6 +445,8 @@ def build_ui() -> gr.Blocks:
                     clear_done_btn = gr.Button("Usuń zakończone")
                     clear_all_btn = gr.Button("Wyczyść kolejkę")
                 status = gr.Markdown("Gotowy do dodania plików.")
+                file_bar = gr.HTML(value="", visible=False)
+                queue_bar = gr.HTML(value="", visible=False)
                 log = gr.Textbox(label="Dziennik", lines=8, max_lines=16, interactive=False)
             with gr.Column(scale=4):
                 gr.Markdown("### Ustawienia (dla całej kolejki)")
@@ -539,6 +542,8 @@ def build_ui() -> gr.Blocks:
                 txt_file,
                 srt_file,
                 json_file,
+                file_bar,
+                queue_bar,
             ],
         )
     return demo

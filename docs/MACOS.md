@@ -44,7 +44,7 @@ chmod +x run.sh run.command
 
 Albo **dwuklik** `run.command` — otworzy Terminal i UI pod http://127.0.0.1:7860
 
-W przeglądarce dodajesz kolejkę: kilka plików albo ścieżka folderu (w Finderze: plik → Option+prawy przycisk → „Copy … as Pathname”). Reszta jak na Linuxie — kolejka idzie po kolei na CPU.
+W przeglądarce dodajesz kolejkę: kilka plików albo ścieżka folderu (w Finderze: plik → Option+prawy przycisk → „Copy … as Pathname”). Reszta jak na Linuxie — kolejka idzie po kolei na CPU, z paskiem bieżącego pliku i (przy wielu nagraniach) całej kolejki.
 
 Pierwsze uruchomienie tworzy `.venv`, dociąga zależności i wybrany model Whisper (`large-v3-turbo` ~1,6 GB, `large-v3` ~3 GB).
 
