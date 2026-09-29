@@ -64,7 +64,7 @@ htm doctor
 htm transcribe nagranie.mp4 \
   --language pl \
   --speakers 3 \
-  --names "Astryda Lisienko,Paweł Bernach,Marcelina Dusza" \
+  --names "Name X,Name Y,Name Z" \
   --out ./output
 
 # dokładniejszy, wolniejszy model
