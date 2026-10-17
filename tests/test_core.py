@@ -59,3 +59,17 @@ def test_txt_and_srt() -> None:
     md = to_markdown(result)
     assert "large-v3-turbo" in md
     assert "szybszy" in md
+
+
+def test_av_metadata_errors_compatibility() -> None:
+    import io
+    import av
+
+    try:
+        av.open(io.BytesIO(b""), mode="r", metadata_errors="ignore")
+    except TypeError as e:
+        assert "metadata_errors" not in str(e)
+    except Exception:
+        # Oczekiwany brak poprawnego kontenera danych, ale NIE TypeError o metadata_errors
+        pass
+
